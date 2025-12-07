@@ -12,7 +12,7 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0+-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer%20Motion-10.0+-0055FF?style=flat-square&logo=framer&logoColor=white)](https://www.framer.com/motion/)
 
-[Live Demo](https://mindcare.vercel.app) • [Documentation](#documentation) • [Contributing](#contributing) • [License](#license)
+[Live Demo](https://mind-care-me6v5ljox-niloy-malliks-projects.vercel.app) • [Documentation](#documentation) • [Contributing](#contributing) • [License](#license)
 
 </div>
 
