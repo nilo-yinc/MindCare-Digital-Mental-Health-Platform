@@ -45,7 +45,7 @@ app.use('/api/counsellor', counsellorRoutes);
 app.use('/api/peer', peerRoutes);
 app.use('/api/appointments', appointmentRoutes);
 
-app.get('/api/health', (req, res) => {
+app.get(['/api/health', '/health'], (req, res) => {
   const geminiKeyExists = !!(process.env.GEMINI_API_KEY && process.env.GEMINI_API_KEY.trim());
   res.json({ 
     status: 'ok', 
