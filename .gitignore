@@ -12,5 +12,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Vite
+.vite/
+frontend/dist/
 *.local
 .vscode/
