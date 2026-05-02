@@ -19,16 +19,22 @@ const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:5174',
   'http://localhost:3000',
-].filter(Boolean);
+].filter(Boolean).map(url => url.replace(/\/$/, '')); // Strip trailing slashes from env vars
 
 connectDB();
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    
+    // Strip trailing slash from the incoming origin just in case
+    const cleanOrigin = origin.replace(/\/$/, '');
+    
+    if (allowedOrigins.includes(cleanOrigin)) {
       return callback(null, true);
     }
 
+    console.warn(`[CORS] Blocked request from origin: ${origin}`);
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true,
