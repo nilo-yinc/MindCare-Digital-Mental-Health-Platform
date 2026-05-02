@@ -89,6 +89,7 @@ const LoginButton = ({
 
 export function Login() {
   const location = useLocation();
+  const processedGoogleHashRef = useRef(false);
   const [view, setView] = useState<'login' | 'register' | 'otp' | 'forgot-password' | 'reset-password'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -109,6 +110,38 @@ export function Login() {
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+  const buildRandomToken = () => {
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  };
+
+  const startGoogleRedirectAuth = () => {
+    if (!googleClientId) {
+      toast.error('Google client ID is missing. Please contact support.');
+      return;
+    }
+
+    const state = buildRandomToken();
+    const nonce = buildRandomToken();
+    const redirectUri = `${window.location.origin}/login`;
+
+    sessionStorage.setItem('mindcare_google_state', state);
+    sessionStorage.setItem('mindcare_google_nonce', nonce);
+
+    const params = new URLSearchParams({
+      client_id: googleClientId,
+      redirect_uri: redirectUri,
+      response_type: 'id_token',
+      scope: 'openid email profile',
+      state,
+      nonce,
+      prompt: 'select_account',
+    });
+
+    window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  };
+
   const handleGoogleSuccess = async (response: any) => {
     try {
       await googleLogin(response.credential);
@@ -118,6 +151,44 @@ export function Login() {
       toast.error(error.message || 'Google login failed');
     }
   };
+
+  const handleGooglePopupError = () => {
+    toast.error('Popup blocked or unavailable. Switching to redirect sign-in...');
+    startGoogleRedirectAuth();
+  };
+
+  useEffect(() => {
+    if (processedGoogleHashRef.current) return;
+
+    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash);
+    const idToken = params.get('id_token');
+    const state = params.get('state');
+    const error = params.get('error');
+
+    if (!idToken && !error) return;
+    processedGoogleHashRef.current = true;
+
+    const expectedState = sessionStorage.getItem('mindcare_google_state');
+    sessionStorage.removeItem('mindcare_google_state');
+    sessionStorage.removeItem('mindcare_google_nonce');
+
+    window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+
+    if (error) {
+      toast.error('Google sign-in was cancelled or failed.');
+      return;
+    }
+
+    if (!idToken || !state || !expectedState || state !== expectedState) {
+      toast.error('Google sign-in validation failed. Please try again.');
+      return;
+    }
+
+    handleGoogleSuccess({ credential: idToken });
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -287,13 +358,20 @@ export function Login() {
                   {googleClientId && (
                     <GoogleLogin 
                       onSuccess={handleGoogleSuccess} 
-                      onError={() => toast.error('Google login popup was closed or failed.')}
+                      onError={handleGooglePopupError}
                       theme="dark" 
                       shape="pill" 
                       use_fedcm_for_prompt={true}
                     />
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={startGoogleRedirectAuth}
+                  className="w-full text-center text-xs font-medium text-slate-400 hover:text-[#00F5D4] transition-colors"
+                >
+                  Trouble with popup? Continue with Google redirect
+                </button>
                 <p className="text-center text-sm text-slate-400">
                   Don't have an account? <button type="button" onClick={() => setView('register')} className="text-[#00F5D4] font-bold">Create one</button>
                 </p>
@@ -363,13 +441,20 @@ export function Login() {
                   {googleClientId && (
                     <GoogleLogin 
                       onSuccess={handleGoogleSuccess} 
-                      onError={() => toast.error('Google registration popup was closed or failed.')}
+                      onError={handleGooglePopupError}
                       theme="dark" 
                       shape="pill" 
                       use_fedcm_for_prompt={true}
                     />
                   )}
                 </div>
+                <button
+                  type="button"
+                  onClick={startGoogleRedirectAuth}
+                  className="w-full text-center text-xs font-medium text-slate-400 hover:text-[#00F5D4] transition-colors"
+                >
+                  Trouble with popup? Continue with Google redirect
+                </button>
                 <p className="text-center text-sm text-slate-400">
                   Already have an account? <button type="button" onClick={() => setView('login')} className="text-[#00F5D4] font-bold">Sign in</button>
                 </p>
