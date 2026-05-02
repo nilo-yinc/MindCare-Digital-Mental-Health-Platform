@@ -35,17 +35,28 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
+    const otp = generateOTP();
+    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
     user = await User.create({ 
       name, 
       email, 
       password,
       role: role || 'student',
-      isVerified: true 
+      isVerified: false,
+      otp,
+      otpExpires
+    });
+
+    await sendEmail({
+      email: user.email,
+      subject: 'MindCare - Verify Your Email',
+      html: `<h2>Welcome to MindCare</h2><p>Your verification code is: <strong style="font-size:24px;">${otp}</strong></p><p>This code will expire in 10 minutes.</p>`
     });
 
     res.status(201).json({
-      ...buildAuthResponse(user),
-      message: 'Registration successful'
+      message: 'Registration successful. Please check your email for verification code.',
+      email: user.email
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -118,6 +129,25 @@ const login = async (req, res) => {
 
     if (!(await user.comparePassword(password))) {
       return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    if (!user.isVerified) {
+      const otp = generateOTP();
+      user.otp = otp;
+      user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+      await user.save();
+
+      await sendEmail({
+        email: user.email,
+        subject: 'MindCare - Verify Your Email',
+        html: `<h2>Verification Required</h2><p>Your verification code is: <strong style="font-size:24px;">${otp}</strong></p>`
+      });
+
+      return res.status(403).json({ 
+        message: 'Account not verified. OTP sent to your email.',
+        email: user.email,
+        requiresVerification: true
+      });
     }
 
     res.json(buildAuthResponse(user));

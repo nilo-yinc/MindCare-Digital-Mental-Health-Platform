@@ -76,10 +76,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      const data = await apiRequest<{ _id: string; name: string; email: string; role: User['role']; avatar?: string; isVerified?: boolean; token: string }>('/api/auth/login', {
+      const data = await apiRequest<any>('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({ email, password }),
       });
+
+      if (data.requiresVerification) {
+        return data;
+      }
 
       return persistSession(data);
     } finally {
@@ -90,10 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (name: string, email: string, password: string, role: User['role'] = 'student') => {
     setIsLoading(true);
     try {
-      const data = await apiRequest<{ _id: string; name: string; email: string; role: User['role']; avatar?: string; isVerified?: boolean; token: string }>('/api/auth/register', {
+      const data = await apiRequest<any>('/api/auth/register', {
         method: 'POST',
         body: JSON.stringify({ name, email, password, role }),
       });
+      
+      if (data.message && !data.token) {
+        return data;
+      }
+
       return persistSession(data);
     } finally {
       setIsLoading(false);

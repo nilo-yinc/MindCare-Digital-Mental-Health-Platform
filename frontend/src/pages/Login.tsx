@@ -194,9 +194,17 @@ export function Login() {
     e.preventDefault();
     try {
       const result = await login(email, password);
+      if ((result as any).requiresVerification) {
+        toast.success((result as any).message);
+        setView('otp');
+        return;
+      }
       toast.success('Welcome back!');
       navigate(`/${(result as any).role}`);
     } catch (error: any) {
+      if (error.message.includes('Account not verified')) {
+        setView('otp');
+      }
       toast.error(error.message || 'Login failed');
     }
   };
@@ -204,9 +212,14 @@ export function Login() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const user = await register(name, email, password, userType as any);
+      const result = await register(name, email, password, userType as any);
+      if ((result as any).message && !(result as any).token) {
+        toast.success((result as any).message);
+        setView('otp');
+        return;
+      }
       toast.success('Account created! Welcome to MindCare.');
-      navigate(`/${user.role}`);
+      navigate(`/${(result as any).role}`);
     } catch (error: any) {
       toast.error(error.message || 'Registration failed');
     }
