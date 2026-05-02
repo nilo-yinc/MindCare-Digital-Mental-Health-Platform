@@ -284,7 +284,15 @@ export function Login() {
                   <div className="flex-grow border-t border-white/5"></div>
                 </div>
                 <div className="flex justify-center">
-                  {googleClientId && <GoogleLogin onSuccess={handleGoogleSuccess} theme="dark" shape="pill" />}
+                  {googleClientId && (
+                    <GoogleLogin 
+                      onSuccess={handleGoogleSuccess} 
+                      onError={() => toast.error('Google login popup was closed or failed.')}
+                      theme="dark" 
+                      shape="pill" 
+                      use_fedcm_for_prompt={true}
+                    />
+                  )}
                 </div>
                 <p className="text-center text-sm text-slate-400">
                   Don't have an account? <button type="button" onClick={() => setView('register')} className="text-[#00F5D4] font-bold">Create one</button>
@@ -352,7 +360,15 @@ export function Login() {
                   <div className="flex-grow border-t border-white/5"></div>
                 </div>
                 <div className="flex justify-center">
-                  {googleClientId && <GoogleLogin onSuccess={handleGoogleSuccess} theme="dark" shape="pill" />}
+                  {googleClientId && (
+                    <GoogleLogin 
+                      onSuccess={handleGoogleSuccess} 
+                      onError={() => toast.error('Google registration popup was closed or failed.')}
+                      theme="dark" 
+                      shape="pill" 
+                      use_fedcm_for_prompt={true}
+                    />
+                  )}
                 </div>
                 <p className="text-center text-sm text-slate-400">
                   Already have an account? <button type="button" onClick={() => setView('login')} className="text-[#00F5D4] font-bold">Sign in</button>
