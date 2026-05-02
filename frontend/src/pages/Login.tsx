@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -90,6 +90,7 @@ const LoginButton = ({
 export function Login() {
   const location = useLocation();
   const processedGoogleHashRef = useRef(false);
+  const googleFlowRef = useRef<'popup' | 'redirect' | 'redirect-return'>('popup');
   const [view, setView] = useState<'login' | 'register' | 'otp' | 'forgot-password' | 'reset-password'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -110,6 +111,22 @@ export function Login() {
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
+  const authDebugEnabled = useMemo(() => {
+    if (import.meta.env.DEV) return true;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('authDebug') === '1';
+  }, []);
+
+  const debugAuth = (stage: string, details?: Record<string, unknown>) => {
+    if (!authDebugEnabled) return;
+    console.info('[MindCare Auth Debug]', {
+      stage,
+      flow: googleFlowRef.current,
+      ...details,
+      timestamp: new Date().toISOString(),
+    });
+  };
+
   const buildRandomToken = () => {
     const bytes = new Uint8Array(16);
     window.crypto.getRandomValues(bytes);
@@ -117,14 +134,17 @@ export function Login() {
   };
 
   const startGoogleRedirectAuth = () => {
+    googleFlowRef.current = 'redirect';
+
     if (!googleClientId) {
+      debugAuth('redirect-init-missing-client-id');
       toast.error('Google client ID is missing. Please contact support.');
       return;
     }
 
     const state = buildRandomToken();
     const nonce = buildRandomToken();
-    const redirectUri = `${window.location.origin}/login`;
+    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/auth/google/callback`;
 
     sessionStorage.setItem('mindcare_google_state', state);
     sessionStorage.setItem('mindcare_google_nonce', nonce);
@@ -139,20 +159,33 @@ export function Login() {
       prompt: 'select_account',
     });
 
+    debugAuth('redirect-init', {
+      redirectUri,
+      origin: window.location.origin,
+    });
+
     window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
   };
 
   const handleGoogleSuccess = async (response: any) => {
     try {
+      debugAuth('google-success-received', {
+        hasCredential: !!response?.credential,
+      });
       await googleLogin(response.credential);
+      debugAuth('google-login-complete');
       toast.success('Welcome back!');
       navigate('/student');
     } catch (error: any) {
+      debugAuth('google-login-failed', {
+        message: error?.message || 'Unknown error',
+      });
       toast.error(error.message || 'Google login failed');
     }
   };
 
   const handleGooglePopupError = () => {
+    debugAuth('popup-error-fallback-to-redirect');
     toast.error('Popup blocked or unavailable. Switching to redirect sign-in...');
     startGoogleRedirectAuth();
   };
@@ -178,15 +211,23 @@ export function Login() {
     window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
 
     if (error) {
+      debugAuth('redirect-return-error', { error });
       toast.error('Google sign-in was cancelled or failed.');
       return;
     }
 
     if (!idToken || !state || !expectedState || state !== expectedState) {
+      debugAuth('redirect-return-state-mismatch', {
+        hasIdToken: !!idToken,
+        hasState: !!state,
+        hasExpectedState: !!expectedState,
+      });
       toast.error('Google sign-in validation failed. Please try again.');
       return;
     }
 
+    googleFlowRef.current = 'redirect-return';
+    debugAuth('redirect-return-validated');
     handleGoogleSuccess({ credential: idToken });
   }, []);
 
@@ -372,6 +413,9 @@ export function Login() {
                 >
                   Trouble with popup? Continue with Google redirect
                 </button>
+                {authDebugEnabled && (
+                  <p className="text-center text-[11px] text-amber-400/80">Auth debug enabled (popup/redirect events in console)</p>
+                )}
                 <p className="text-center text-sm text-slate-400">
                   Don't have an account? <button type="button" onClick={() => setView('register')} className="text-[#00F5D4] font-bold">Create one</button>
                 </p>

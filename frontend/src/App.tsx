@@ -40,6 +40,7 @@ function App() {
                   <Route path="/resources" element={<Resources />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/login" element={<Login />} />
+                  <Route path="/auth/google/callback" element={<Login />} />
                   <Route path="/counsellor" element={<CounsellorDashboard />} />
                   <Route path="/admin" element={<AdminDashboard />} />
                 </Routes>
