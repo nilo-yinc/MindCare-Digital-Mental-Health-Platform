@@ -1,5 +1,6 @@
 <div align="center">
-  <img src="frontend/public/logo.png" width="250" alt="MindCare Logo" />
+ <img width="211" height="70" alt="image" src="https://github.com/user-attachments/assets/9a3be1f3-4846-4dc3-a821-f4de2edbf38f" />
+
   
   <h1>MindCare: Digital Mental Health Platform</h1>
   
@@ -25,31 +26,11 @@
 
 ## 📸 Platform Interface
 
-<div align="center">
-  <h3>✨ Modern, Intuitive & Empathetic UI</h3>
-  <!-- USER: Replace 'dashboard_ss.png' with your actual screenshot in frontend/public/docs/ -->
-  <img src="frontend/public/docs/dashboard_ss.png" width="900" alt="MindCare Student Dashboard" style="border-radius: 10px; border: 1px solid #333;" />
-  <p><em>Comprehensive Student Dashboard featuring Mood Trajectories, AI Companion, and Peer Buddy access.</em></p>
-</div>
+<img width="1912" height="992" alt="image" src="https://github.com/user-attachments/assets/72f39b0f-3ee9-4839-83be-b06acf7b8253" />
 
-<br />
+<img width="1895" height="1000" alt="image" src="https://github.com/user-attachments/assets/4a4e0f2c-c102-46b0-8ee8-a6ef64ed8a86" />
 
-<div align="center">
-  <table style="width: 100%;">
-    <tr>
-      <td width="50%">
-        <!-- USER: Replace 'ai_ss.png' with your actual screenshot -->
-        <img src="frontend/public/docs/ai_ss.png" width="100%" alt="AI Sanctuary" style="border-radius: 8px;" />
-        <p align="center"><strong>AI Sanctuary Chat</strong></p>
-      </td>
-      <td width="50%">
-        <!-- USER: Replace 'twin_ss.png' with your actual screenshot -->
-        <img src="frontend/public/docs/twin_ss.png" width="100%" alt="Digital Twin" style="border-radius: 8px;" />
-        <p align="center"><strong>Digital Twin Insights</strong></p>
-      </td>
-    </tr>
-  </table>
-</div>
+
 
 ---
 
