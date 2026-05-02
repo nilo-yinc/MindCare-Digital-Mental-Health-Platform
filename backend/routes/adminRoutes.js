@@ -9,3 +9,4 @@ router.get('/heatmap', protect, getStressHeatmap);
 router.get('/report', protect, getAccreditationReport);
 
 module.exports = router;
+

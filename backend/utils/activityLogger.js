@@ -21,3 +21,4 @@ const logActivity = async (userId, type, title, points = 10) => {
 };
 
 module.exports = logActivity;
+

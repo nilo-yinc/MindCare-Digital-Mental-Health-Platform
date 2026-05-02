@@ -8,3 +8,4 @@ router.get('/appointments', protect, getAppointments);
 router.get('/trends/:alias', protect, getStudentTrends);
 
 module.exports = router;
+

@@ -189,3 +189,4 @@ async function getProfile(userId) {
 }
 
 module.exports = { trainProfile, getProfile };
+

@@ -8,3 +8,4 @@ router.get('/heatmap', protect, admin, getHeatmap);
 router.get('/report', protect, admin, getSystemReport);
 
 module.exports = router;
+

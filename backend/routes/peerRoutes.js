@@ -11,3 +11,4 @@ router.post('/groups/:id/message', protect, sendMessage);
 router.get('/groups/:id/messages', protect, getMessages);
 
 module.exports = router;
+

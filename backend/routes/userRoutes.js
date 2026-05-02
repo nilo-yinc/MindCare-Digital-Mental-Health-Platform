@@ -12,3 +12,4 @@ router.get('/counsellors', protect, getCounsellors);
 router.get('/profile', protect, getUserProfile);
 
 module.exports = router;
+

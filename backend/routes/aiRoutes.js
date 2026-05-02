@@ -11,3 +11,4 @@ router.post('/stress-predict', protect, predictStress);
 router.get('/twin-profile', protect, getTwinProfile);
 
 module.exports = router;
+

@@ -135,3 +135,4 @@ const getMessages = async (req, res) => {
 };
 
 module.exports = { listGroups, createGroup, joinGroup, sendMessage, getMessages };
+

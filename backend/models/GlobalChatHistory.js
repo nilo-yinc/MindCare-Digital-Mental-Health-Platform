@@ -37,3 +37,4 @@ const globalChatHistorySchema = new mongoose.Schema({
 globalChatHistorySchema.index({ user: 1, createdAt: -1 });
 
 module.exports = mongoose.model('GlobalChatHistory', globalChatHistorySchema);
+

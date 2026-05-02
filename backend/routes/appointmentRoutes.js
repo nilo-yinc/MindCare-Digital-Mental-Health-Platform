@@ -9,3 +9,4 @@ router.get('/', protect, getMyAppointments);
 router.put('/:id', protect, updateAppointmentStatus);
 
 module.exports = router;
+

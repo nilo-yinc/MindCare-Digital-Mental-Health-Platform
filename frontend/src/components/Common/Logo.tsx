@@ -34,3 +34,4 @@ export function Logo({ className = '', withText = true }: LogoProps) {
     </div>
   );
 }
+

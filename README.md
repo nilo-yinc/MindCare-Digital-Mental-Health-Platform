@@ -1,308 +1,72 @@
-# 🧠 MindCare - Digital Mental Health Platform
+# MindCare: Digital Mental Health Platform
 
-<div align="center">
+MindCare is a comprehensive digital wellness ecosystem designed specifically for the higher education environment. It integrates personalized mood tracking, AI-driven emotional support, peer networking, and clinical consultation scheduling into a single, secure platform.
 
-![MindCare Logo](https://img.shields.io/badge/MindCare-Digital%20Mental%20Health-blue?style=for-the-badge&logo=heart&logoColor=white)
+## Key Features
 
-**A comprehensive digital mental health platform designed specifically for students**
+- **Personalized Dashboard:** A high-fidelity interface for students to monitor their wellness journey, mood trajectory, and engagement metrics.
+- **AI Sanctuary:** An intelligent, context-aware support terminal that utilizes advanced natural language processing to provide clinical empathy and coping strategies.
+- **Digital Twin Insights:** Real-time predictive analytics that identify potential stressors and burnout risks based on user behavior and state check-ins.
+- **Expert Care Booking:** A streamlined system for students to connect with professional university counsellors for clinical consultations.
+- **Peer Support Network:** A moderated peer-to-peer environment for shared experiences and community resilience.
+- **Resource Hub:** A curated library of mental health resources, guided breathing tools, and mindfulness content.
 
-[![React](https://img.shields.io/badge/React-18.0+-61DAFB?style=flat-square&logo=react&logoColor=white)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5.0+-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.0+-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Framer Motion](https://img.shields.io/badge/Framer%20Motion-10.0+-0055FF?style=flat-square&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+## Tech Stack
 
-[Live Demo](https://mind-care-me6v5ljox-niloy-malliks-projects.vercel.app) • [Documentation](#documentation) • [Contributing](#contributing) • [License](#license)
+### Frontend
+- **React.js** with **TypeScript** for type-safe development.
+- **Framer Motion** & **GSAP** for high-performance animations and interactive UI.
+- **Tailwind CSS** for responsive, modern design.
+- **Lucide React** for consistent iconography.
 
-</div>
+### Backend
+- **Node.js** & **Express.js** for a robust RESTful API architecture.
+- **MongoDB** with **Mongoose** for scalable, document-oriented data management.
+- **Google Generative AI SDK** for sophisticated AI interventions.
+- **JWT** for secure, stateless authentication.
 
----
-
-## 🌟 Features
-
-### 🎯 **Student Dashboard**
-- **Real-time Mood Tracking** - Interactive mood slider with intelligent categorization
-- **Weekly Progress Analytics** - Visual charts showing mood and stress trends
-- **AI-Powered Chat Support** - 24/7 mental health assistance
-- **Stress Prediction** - Advanced algorithms to predict and manage stress levels
-- **Activity Tracking** - Monitor your mental wellness journey
-
-### 🎨 **Modern UI/UX**
-- **Glass Morphism Design** - Beautiful backdrop blur effects and modern aesthetics
-- **Dark/Light Mode** - Seamless theme switching
-- **Responsive Design** - Optimized for all devices
-- **Smooth Animations** - Framer Motion powered micro-interactions
-- **Professional Typography** - Clean, readable font hierarchy
-
-### 🔧 **Technical Excellence**
-- **TypeScript** - Full type safety and better development experience
-- **Component Architecture** - Modular, reusable React components
-- **Performance Optimized** - Fast loading and smooth interactions
-- **Accessibility** - WCAG compliant design patterns
-- **Modern Build Tools** - Vite for lightning-fast development
-
----
-
-## 🚀 Quick Start
+## Getting Started
 
 ### Prerequisites
-- Node.js 18.0 or higher
-- npm or yarn package manager
+- Node.js (v16+)
+- MongoDB Atlas account
+- API keys for Gemini (AI) and Apps Script (Email)
 
 ### Installation
 
-1. **Clone the repository**
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/mindcare-digital-mental-health-platform.git
-   cd mindcare-digital-mental-health-platform
+   git clone <repository-url>
+   cd MindCare-Digital-Mental-Health-Platform
    ```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+2. **Backend Configuration:**
+   - Navigate to `/backend`
+   - Create a `.env` file with the following:
+     ```env
+     PORT=3000
+     MONGODB_URI=your_mongodb_connection_string
+     JWT_SECRET=your_secure_jwt_secret
+     GEMINI_API_KEY=your_gemini_api_key
+     APPS_SCRIPT_WEBHOOK_URL=your_email_webhook_url
+     ```
+   - Install dependencies: `npm install`
 
-3. **Start the development server**
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+3. **Frontend Configuration:**
+   - Navigate to `/frontend`
+   - Create a `.env` file with:
+     ```env
+     VITE_API_URL=http://localhost:3000
+     ```
+   - Install dependencies: `npm install`
 
-4. **Open your browser**
-   Navigate to `http://localhost:5173` to view the application.
+4. **Run Locally:**
+   - From the root directory: `npm run dev`
 
-### Build for Production
+## Architecture
 
-```bash
-npm run build
-# or
-yarn build
-```
+The project follows a standard MVC (Model-View-Controller) architecture on the backend, ensuring a clean separation of concerns. The frontend is built with a component-driven approach, utilizing React Context for state management and modular services for API interactions.
 
----
+## License
 
-## 📱 Screenshots
-
-<div align="center">
-
-### Student Dashboard
-![Student Dashboard](https://via.placeholder.com/800x400/1e293b/ffffff?text=Student+Dashboard+Preview)
-
-### Mood Tracker
-![Mood Tracker](https://via.placeholder.com/400x300/3b82f6/ffffff?text=Mood+Tracker+Interface)
-
-### AI Chat Interface
-![AI Chat](https://via.placeholder.com/400x300/8b5cf6/ffffff?text=AI+Chat+Support)
-
-</div>
-
----
-
-## 🏗️ Project Structure
-
-```
-mindcare-digital-mental-health-platform/
-├── src/
-│   ├── components/
-│   │   ├── Common/
-│   │   │   └── EmergencyButton.tsx
-│   │   └── Layout/
-│   │       ├── Footer.tsx
-│   │       └── Navbar.tsx
-│   ├── contexts/
-│   │   ├── AuthContext.tsx
-│   │   └── ThemeContext.tsx
-│   ├── pages/
-│   │   ├── Student/
-│   │   │   ├── components/
-│   │   │   │   ├── ChatInterface.tsx
-│   │   │   │   ├── MoodTracker.tsx
-│   │   │   │   └── StressPredictor.tsx
-│   │   │   └── StudentDashboard.tsx
-│   │   ├── About.tsx
-│   │   ├── Home.tsx
-│   │   ├── Login.tsx
-│   │   └── Resources.tsx
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── public/
-├── package.json
-├── tailwind.config.js
-├── tsconfig.json
-└── vite.config.ts
-```
-
----
-
-## 🛠️ Technologies Used
-
-### Frontend
-- **React 18** - Modern React with hooks and functional components
-- **TypeScript** - Type-safe JavaScript for better development experience
-- **Vite** - Lightning-fast build tool and development server
-- **Tailwind CSS** - Utility-first CSS framework for rapid UI development
-- **Framer Motion** - Production-ready motion library for React
-- **React Router** - Declarative routing for React applications
-- **React Hot Toast** - Beautiful, customizable toast notifications
-- **Lucide React** - Beautiful & consistent icon toolkit
-
-### Development Tools
-- **ESLint** - Code linting and formatting
-- **Prettier** - Code formatting
-- **PostCSS** - CSS processing
-- **Autoprefixer** - CSS vendor prefixing
-
----
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary**: Indigo/Purple gradients for main actions
-- **Secondary**: Emerald/Teal for success states
-- **Accent**: Blue for information and links
-- **Warning**: Orange/Red for alerts and warnings
-- **Neutral**: Gray scale for text and backgrounds
-
-### Typography
-- **Headings**: Bold, gradient text with proper hierarchy
-- **Body**: Clean, readable fonts with optimal line spacing
-- **Code**: Monospace fonts for technical content
-
-### Components
-- **Cards**: Rounded corners with subtle shadows and borders
-- **Buttons**: Gradient backgrounds with hover animations
-- **Forms**: Clean inputs with focus states and validation
-- **Modals**: Backdrop blur with smooth animations
-
----
-
-## 🚀 Deployment
-
-### Vercel (Recommended)
-1. Connect your GitHub repository to Vercel
-2. Configure build settings:
-   - Build Command: `npm run build`
-   - Output Directory: `dist`
-3. Deploy automatically on every push
-
-### Netlify
-1. Connect your repository to Netlify
-2. Set build command: `npm run build`
-3. Set publish directory: `dist`
-4. Deploy
-
-### Manual Deployment
-1. Build the project: `npm run build`
-2. Upload the `dist` folder to your web server
-3. Configure your server to serve the SPA
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. **Fork the repository**
-2. **Create a feature branch**
-   ```bash
-   git checkout -b feature/amazing-feature
-   ```
-3. **Commit your changes**
-   ```bash
-   git commit -m 'Add some amazing feature'
-   ```
-4. **Push to the branch**
-   ```bash
-   git push origin feature/amazing-feature
-   ```
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow the existing code style and conventions
-- Write meaningful commit messages
-- Add tests for new features
-- Update documentation as needed
-- Ensure all linting checks pass
-
----
-
-## 📊 Performance
-
-- **Lighthouse Score**: 95+ across all metrics
-- **First Contentful Paint**: < 1.5s
-- **Largest Contentful Paint**: < 2.5s
-- **Cumulative Layout Shift**: < 0.1
-- **Bundle Size**: Optimized and tree-shaken
-
----
-
-## 🔒 Security
-
-- **HTTPS Only** - All communications encrypted
-- **No Data Storage** - Client-side only, no personal data stored
-- **Privacy First** - Anonymous usage, no tracking
-- **Secure Dependencies** - Regularly updated packages
-
----
-
-## 📈 Roadmap
-
-### Phase 1 (Current)
-- ✅ Student Dashboard
-- ✅ Mood Tracking
-- ✅ AI Chat Interface
-- ✅ Stress Prediction
-- ✅ Responsive Design
-
-### Phase 2 (Upcoming)
-- [ ] Counselor Dashboard
-- [ ] Admin Panel
-- [ ] Mobile App (React Native)
-- [ ] Advanced Analytics
-- [ ] Group Therapy Features
-
-### Phase 3 (Future)
-- [ ] Machine Learning Integration
-- [ ] Wearable Device Support
-- [ ] Multi-language Support
-- [ ] Advanced Reporting
-- [ ] API for Third-party Integration
-
----
-
-## 📞 Support
-
-- **Documentation**: [View Docs](https://mindcare.vercel.app/docs)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/mindcare-digital-mental-health-platform/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/mindcare-digital-mental-health-platform/discussions)
-- **Email**: support@mindcare.app
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **React Team** - For the amazing framework
-- **Tailwind CSS** - For the utility-first CSS approach
-- **Framer Motion** - For smooth animations
-- **Lucide** - For beautiful icons
-- **Vite** - For the lightning-fast build tool
-
----
-
-<div align="center">
-
-**Made with ❤️ for student mental health**
-
-[⭐ Star this repo](https://github.com/nilo-yinc/mindcare-digital-mental-health-platform) • [🐛 Report Bug](https://github.com/nilo-yinc/mindcare-digital-mental-health-platform/issues) • [💡 Request Feature](https://github.com/nilo-yinc/mindcare-digital-mental-health-platform/issues)
-
-</div>
+This project is developed for educational purposes as part of the University Mental Health Initiative.
