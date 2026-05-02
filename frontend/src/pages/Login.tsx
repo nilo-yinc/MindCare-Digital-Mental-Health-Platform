@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/Common/Logo';
-import { useGoogleLogin } from '@react-oauth/google';
+
 import toast from 'react-hot-toast';
 import gsap from 'gsap';
 
@@ -89,6 +89,7 @@ const LoginButton = ({
 
 export function Login() {
   const location = useLocation();
+  const processedGoogleHashRef = useRef(false);
   const [view, setView] = useState<'login' | 'register' | 'otp' | 'forgot-password' | 'reset-password'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -109,18 +110,85 @@ export function Login() {
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async (response) => {
-      try {
-        await googleLogin(response.access_token, true);
-        toast.success('Welcome back!');
-        navigate('/student');
-      } catch (error: any) {
-        toast.error(error.message || 'Google login failed');
-      }
-    },
-    onError: () => toast.error('Google login popup was closed or failed.'),
-  });
+  const buildRandomToken = () => {
+    const bytes = new Uint8Array(16);
+    window.crypto.getRandomValues(bytes);
+    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  };
+
+  const startGoogleRedirectAuth = () => {
+    if (!googleClientId) {
+      toast.error('Google client ID is missing. Please contact support.');
+      return;
+    }
+
+    const state = buildRandomToken();
+    const nonce = buildRandomToken();
+    const redirectUri = `${window.location.origin}/login`;
+
+    sessionStorage.setItem('mindcare_google_state', state);
+    sessionStorage.setItem('mindcare_google_nonce', nonce);
+
+    const params = new URLSearchParams({
+      client_id: googleClientId,
+      redirect_uri: redirectUri,
+      response_type: 'id_token',
+      scope: 'openid email profile',
+      state,
+      nonce,
+      prompt: 'select_account',
+    });
+
+    window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
+  };
+
+  const handleGoogleSuccess = async (response: any) => {
+    try {
+      await googleLogin(response.credential);
+      toast.success('Welcome back!');
+      navigate('/student');
+    } catch (error: any) {
+      toast.error(error.message || 'Google login failed');
+    }
+  };
+
+  const handleGooglePopupError = () => {
+    toast.error('Popup blocked or unavailable. Switching to redirect sign-in...');
+    startGoogleRedirectAuth();
+  };
+
+  useEffect(() => {
+    if (processedGoogleHashRef.current) return;
+
+    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
+    if (!hash) return;
+
+    const params = new URLSearchParams(hash);
+    const idToken = params.get('id_token');
+    const state = params.get('state');
+    const error = params.get('error');
+
+    if (!idToken && !error) return;
+    processedGoogleHashRef.current = true;
+
+    const expectedState = sessionStorage.getItem('mindcare_google_state');
+    sessionStorage.removeItem('mindcare_google_state');
+    sessionStorage.removeItem('mindcare_google_nonce');
+
+    window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+
+    if (error) {
+      toast.error('Google sign-in was cancelled or failed.');
+      return;
+    }
+
+    if (!idToken || !state || !expectedState || state !== expectedState) {
+      toast.error('Google sign-in validation failed. Please try again.');
+      return;
+    }
+
+    handleGoogleSuccess({ credential: idToken });
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -290,7 +358,7 @@ export function Login() {
                   {googleClientId && (
                     <button 
                       type="button" 
-                      onClick={() => loginWithGoogle()} 
+                      onClick={startGoogleRedirectAuth} 
                       className="flex items-center justify-center space-x-2 bg-white text-gray-800 font-bold py-3 px-6 rounded-full shadow-md hover:bg-gray-100 transition duration-300 w-full"
                     >
                       <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
@@ -367,7 +435,7 @@ export function Login() {
                   {googleClientId && (
                     <button 
                       type="button" 
-                      onClick={() => loginWithGoogle()} 
+                      onClick={startGoogleRedirectAuth} 
                       className="flex items-center justify-center space-x-2 bg-white text-gray-800 font-bold py-3 px-6 rounded-full shadow-md hover:bg-gray-100 transition duration-300 w-full"
                     >
                       <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
