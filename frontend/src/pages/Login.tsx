@@ -124,7 +124,7 @@ export function Login() {
 
     const state = buildRandomToken();
     const nonce = buildRandomToken();
-    const redirectUri = `${window.location.origin}/login`;
+    const redirectUri = `${window.location.origin}/auth/google/callback`;
 
     sessionStorage.setItem('mindcare_google_state', state);
     sessionStorage.setItem('mindcare_google_nonce', nonce);
