@@ -1,5 +1,6 @@
 const Appointment = require('../models/Appointment');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 
 // @desc    Book a new appointment
 // @route   POST /api/appointments
@@ -14,6 +15,28 @@ const createAppointment = async (req, res) => {
       time,
       type,
       reason
+    });
+
+    // Send Confirmation Email
+    const counsellor = await User.findById(counsellorId);
+    await sendEmail({
+      email: req.user.email,
+      subject: 'MindCare - Appointment Confirmation',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #00F5D4;">Appointment Confirmed</h2>
+          <p>Hello ${req.user.name},</p>
+          <p>Your session with <strong>${counsellor ? counsellor.name : 'your counsellor'}</strong> has been booked successfully.</p>
+          <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Date:</strong> ${new Date(date).toLocaleDateString()}</p>
+            <p><strong>Time:</strong> ${time}</p>
+            <p><strong>Type:</strong> ${type}</p>
+          </div>
+          <p>Please make sure to be available on time. You can view your appointments in the student dashboard.</p>
+          <br/>
+          <p>Best regards,<br/>The MindCare Team</p>
+        </div>
+      `
     });
 
     res.status(201).json(appointment);

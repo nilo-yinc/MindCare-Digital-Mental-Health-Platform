@@ -85,6 +85,28 @@ const verifyOTP = async (req, res) => {
     user.otpExpires = undefined;
     await user.save();
 
+    // Welcome Email (First time verification)
+    await sendEmail({
+      email: user.email,
+      subject: 'Welcome to MindCare!',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #00F5D4; text-align: center;">Welcome to MindCare!</h2>
+          <p>Hello <strong>${user.name}</strong>,</p>
+          <p>Thank you for verifying your account. You now have full access to our digital mental health platform.</p>
+          <p>Explore our features:</p>
+          <ul>
+            <li><strong>AI Companion:</strong> Talk to our empathetic AI buddy anytime.</li>
+            <li><strong>Peer Circles:</strong> Join anonymous support groups.</li>
+            <li><strong>Professional Support:</strong> Book sessions with verified counsellors.</li>
+          </ul>
+          <p>We're here to support you every step of the way.</p>
+          <br/>
+          <p>Best regards,<br/>The MindCare Team</p>
+        </div>
+      `
+    });
+
     res.json({
       ...buildAuthResponse(user),
       message: 'Account verified successfully'
@@ -149,6 +171,21 @@ const login = async (req, res) => {
         requiresVerification: true
       });
     }
+
+    // Login Greeting Email
+    sendEmail({
+      email: user.email,
+      subject: 'New Login to MindCare',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #00F5D4;">Hello ${user.name}!</h2>
+          <p>You have just logged into your MindCare account. If this was not you, please secure your account immediately.</p>
+          <p>We're glad to see you again!</p>
+          <br/>
+          <p>Stay Mindful,<br/>MindCare Team</p>
+        </div>
+      `
+    });
 
     res.json(buildAuthResponse(user));
   } catch (error) {
@@ -307,6 +344,22 @@ const updateProfile = async (req, res) => {
     }
 
     await req.user.save();
+
+    // Profile Update Notification
+    sendEmail({
+      email: req.user.email,
+      subject: 'MindCare - Profile Updated',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+          <h2 style="color: #00F5D4;">Profile Updated</h2>
+          <p>Hello ${req.user.name},</p>
+          <p>This is a confirmation that your MindCare profile details (personal or professional) have been successfully updated.</p>
+          <p>If you did not make these changes, please contact support or reset your password immediately.</p>
+          <br/>
+          <p>Stay Mindful,<br/>MindCare Team</p>
+        </div>
+      `
+    });
 
     res.json({
       _id: req.user._id,
