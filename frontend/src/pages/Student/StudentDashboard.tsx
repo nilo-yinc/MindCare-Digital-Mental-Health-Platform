@@ -116,11 +116,16 @@ export function StudentDashboard() {
     { label: 'Stress Level', target: dashboardStats.stressLevel, suffix: '%', decimal: false },
   ];
 
-  const [recentActivities, setRecentActivities] = useState([
-    { title: 'Sanctuary Entry', time: 'Just now', icon: HeartPulse },
-    { title: 'AI Reflection', time: 'Recently', icon: MessageCircle },
-    { title: 'Mood Sync', time: 'Today', icon: Activity }
-  ]);
+  const [recentActivities, setRecentActivities] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (dashboardStats.recentActivities) {
+      setRecentActivities(dashboardStats.recentActivities.map((a: any) => ({
+        ...a,
+        icon: a.type === 'check-in' ? HeartPulse : a.type === 'appointment' ? Calendar : MessageCircle
+      })));
+    }
+  }, [dashboardStats]);
 
   return (
     <div className="min-h-screen bg-[#0A0F14] text-slate-200 pb-20">
@@ -251,7 +256,9 @@ export function StudentDashboard() {
                     </div>
                     <div className="flex-1">
                       <h4 className="text-white font-bold text-sm">{act.title}</h4>
-                      <p className="text-[10px] text-slate-500 mt-1 uppercase font-black tracking-widest">{act.time}</p>
+                      <p className="text-[10px] text-slate-500 mt-1 uppercase font-black tracking-widest">
+                        {new Date(act.time).toLocaleDateString([], { month: 'short', day: 'numeric' })} • {new Date(act.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </p>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-700 group-hover:text-[#00F5D4] transition-all self-center" />
                   </div>

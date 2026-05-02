@@ -1,6 +1,7 @@
 const Appointment = require('../models/Appointment');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const logActivity = require('../utils/activityLogger');
 
 // @desc    Book a new appointment
 // @route   POST /api/appointments
@@ -38,6 +39,9 @@ const createAppointment = async (req, res) => {
         </div>
       `
     });
+    
+    // Log Activity
+    await logActivity(req.user._id, 'appointment', 'Expert Care Booking', 25);
 
     res.status(201).json(appointment);
   } catch (error) {

@@ -8,7 +8,11 @@ const activitySchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['meditation', 'exercise', 'sleep', 'journaling', 'peer-support'],
+    enum: ['meditation', 'exercise', 'sleep', 'journaling', 'peer-support', 'check-in', 'appointment', 'chat'],
+    required: true
+  },
+  title: {
+    type: String,
     required: true
   },
   points: {

@@ -5,6 +5,7 @@ const Mood = require('../models/Mood');
 const Resource = require('../models/Resource');
 const twinService = require('../services/twinService');
 const { v4: uuidv4 } = require('uuid');
+const logActivity = require('../utils/activityLogger');
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // MULTI-KEY PROVIDER SYSTEM — Failover Chain
@@ -345,6 +346,9 @@ const chatWithAI = async (req, res) => {
 
     // ── 7. Background Train (non-blocking) ───────────────────────────────────
     twinService.trainProfile(userId).catch(e => console.warn(`[TWIN] ${e.message}`));
+
+    // ── 7. Log Activity ───────────────────────────────────
+    logActivity(userId, 'chat', 'AI Reflection', 20);
 
     return res.json(aiResponse);
 

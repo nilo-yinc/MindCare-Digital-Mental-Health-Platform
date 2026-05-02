@@ -1,4 +1,6 @@
 const Mood = require('../models/Mood');
+const Activity = require('../models/Activity');
+const logActivity = require('../utils/activityLogger');
 
 const saveMood = async (req, res) => {
   try {
@@ -8,6 +10,10 @@ const saveMood = async (req, res) => {
       score,
       note
     });
+
+    // Log Activity
+    await logActivity(req.user._id, 'check-in', 'Sanctuary Entry', 15);
+
     res.status(201).json(mood);
   } catch (error) {
     res.status(500).json({ message: 'Error saving mood', error: error.message });
@@ -41,12 +47,23 @@ const getDashboardStats = async (req, res) => {
       else break;
     }
 
+    // Fetch real recent activities
+    const recentActivities = await Activity.find({ user: req.user._id })
+      .sort({ date: -1 })
+      .limit(3)
+      .lean();
+
     res.json({
       moodScore: avgMood,
       streakDays: streak,
-      totalSessions: moods.length, // Placeholder logic
-      stressLevel: 24, // Placeholder logic
-      history: moods.slice(0, 7).reverse().map(m => ({ value: m.score }))
+      totalSessions: moods.length,
+      stressLevel: 24, // Keep placeholder for now or calculate from twin
+      history: moods.slice(0, 7).reverse().map(m => ({ value: m.score })),
+      recentActivities: recentActivities.map(a => ({
+        title: a.title,
+        type: a.type,
+        time: a.date
+      }))
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching stats', error: error.message });
