@@ -1,72 +1,105 @@
-# MindCare: Digital Mental Health Platform
+<div align="center">
+  <img src="frontend/public/3d_realistic_brain_hero.png" width="200" alt="MindCare Logo" />
+  <h1>MindCare</h1>
+  <p><strong>A High-Fidelity Digital Mental Health Ecosystem for Higher Education</strong></p>
 
-MindCare is a comprehensive digital wellness ecosystem designed specifically for the higher education environment. It integrates personalized mood tracking, AI-driven emotional support, peer networking, and clinical consultation scheduling into a single, secure platform.
+  [![Status](https://img.shields.io/badge/Status-Operational-00F5D4?style=for-the-badge)]()
+  [![License](https://img.shields.io/badge/License-Academic-blue?style=for-the-badge)]()
+  [![React](https://img.shields.io/badge/Frontend-React%20%2B%20TS-61DAFB?style=for-the-badge&logo=react)]()
+  [![Node](https://img.shields.io/badge/Backend-Node.js-339933?style=for-the-badge&logo=nodedotjs)]()
+</div>
 
-## Key Features
+---
 
-- **Personalized Dashboard:** A high-fidelity interface for students to monitor their wellness journey, mood trajectory, and engagement metrics.
-- **AI Sanctuary:** An intelligent, context-aware support terminal that utilizes advanced natural language processing to provide clinical empathy and coping strategies.
-- **Digital Twin Insights:** Real-time predictive analytics that identify potential stressors and burnout risks based on user behavior and state check-ins.
-- **Expert Care Booking:** A streamlined system for students to connect with professional university counsellors for clinical consultations.
-- **Peer Support Network:** A moderated peer-to-peer environment for shared experiences and community resilience.
-- **Resource Hub:** A curated library of mental health resources, guided breathing tools, and mindfulness content.
+## 🌟 Overview
 
-## Tech Stack
+MindCare is a comprehensive digital wellness platform engineered to address the unique psychological challenges faced by students in higher education. By combining **Predictive Analytics**, **Conversational AI**, and **Peer Connectivity**, MindCare provides a safe, anonymous, and scientifically-grounded environment for emotional growth and crisis prevention.
 
-### Frontend
-- **React.js** with **TypeScript** for type-safe development.
-- **Framer Motion** & **GSAP** for high-performance animations and interactive UI.
-- **Tailwind CSS** for responsive, modern design.
-- **Lucide React** for consistent iconography.
+## 📸 Platform Interface
 
-### Backend
-- **Node.js** & **Express.js** for a robust RESTful API architecture.
-- **MongoDB** with **Mongoose** for scalable, document-oriented data management.
-- **Google Generative AI SDK** for sophisticated AI interventions.
-- **JWT** for secure, stateless authentication.
+<div align="center">
+  <img src="frontend/public/3d_abstract_mental_health_asset.png" width="800" alt="MindCare Dashboard Preview" />
+  <p><em>(Placeholder for Platform Screenshot: Dynamic Student Dashboard)</em></p>
+</div>
 
-## Getting Started
+---
 
-### Prerequisites
-- Node.js (v16+)
-- MongoDB Atlas account
-- API keys for Gemini (AI) and Apps Script (Email)
+## 🚀 Core Features
 
-### Installation
+### 🧠 AI Sanctuary
+A state-of-the-art conversational interface powered by large language models. It provides 24/7 empathetic support, utilizing Cognitive Behavioral Therapy (CBT) principles to help students navigate stress and anxiety.
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd MindCare-Digital-Mental-Health-Platform
-   ```
+### 📊 Digital Twin Analytics
+A proactive wellness engine that monitors mood trajectories and behavioral patterns. It generates "Digital Twin Insights" to predict potential burnout risks before they manifest.
 
-2. **Backend Configuration:**
-   - Navigate to `/backend`
-   - Create a `.env` file with the following:
-     ```env
-     PORT=3000
-     MONGODB_URI=your_mongodb_connection_string
-     JWT_SECRET=your_secure_jwt_secret
-     GEMINI_API_KEY=your_gemini_api_key
-     APPS_SCRIPT_WEBHOOK_URL=your_email_webhook_url
-     ```
-   - Install dependencies: `npm install`
+### 🤝 Peer Support Network
+A moderated, anonymous space where students can share experiences and build community resilience through shared empathy and peer-led groups.
 
-3. **Frontend Configuration:**
-   - Navigate to `/frontend`
-   - Create a `.env` file with:
-     ```env
-     VITE_API_URL=http://localhost:3000
-     ```
-   - Install dependencies: `npm install`
+### 📅 Expert Care Integration
+Direct integration with university counseling services, allowing students to seamlessly transition from self-care to professional clinical consultation.
 
-4. **Run Locally:**
-   - From the root directory: `npm run dev`
+---
 
-## Architecture
+## 🛠️ Technology Stack
 
-The project follows a standard MVC (Model-View-Controller) architecture on the backend, ensuring a clean separation of concerns. The frontend is built with a component-driven approach, utilizing React Context for state management and modular services for API interactions.
+| Layer | Technology |
+| :--- | :--- |
+| **Frontend** | React 18, TypeScript, Tailwind CSS, Framer Motion, GSAP, Recharts |
+| **Backend** | Node.js, Express.js, JWT Authentication |
+| **Intelligence** | Google Gemini API (NLP), Predictive Stress Modeling |
+| **Database** | MongoDB Atlas (Mongoose ODM) |
+| **Communications** | Google Apps Script Bridge (Email), Custom SMS Gateway |
 
-## License
+---
 
-This project is developed for educational purposes as part of the University Mental Health Initiative.
+## 🏗️ System Architecture
+
+MindCare utilizes a **Monolithic Service Architecture** with a clear separation of concerns:
+
+- **Client Tier:** A responsive Single Page Application (SPA) with stateful context management and real-time animation controllers.
+- **API Tier:** A secure RESTful gateway implementing middleware for authentication, rate limiting, and activity logging.
+- **Data Tier:** A document-oriented storage system optimized for time-series mood data and encrypted user profiles.
+- **Inference Tier:** A failover-ready AI service layer that aggregates data from multiple LLM providers for maximum reliability.
+
+---
+
+## 🔧 Installation & Setup
+
+### 1. Repository Setup
+```bash
+git clone https://github.com/nilo-yinc/MindCare-Digital-Mental-Health-Platform.git
+cd MindCare-Digital-Mental-Health-Platform
+```
+
+### 2. Backend Configuration
+Navigate to the `/backend` directory and create a `.env` file:
+```env
+PORT=3000
+MONGODB_URI=your_mongodb_connection_string
+JWT_SECRET=your_secure_jwt_secret
+GEMINI_API_KEY=your_gemini_api_key
+APPS_SCRIPT_WEBHOOK_URL=your_email_webhook_url
+```
+`npm install && npm start`
+
+### 3. Frontend Configuration
+Navigate to the `/frontend` directory and create a `.env` file:
+```env
+VITE_API_URL=http://localhost:3000
+```
+`npm install && npm run dev`
+
+---
+
+## 📈 Roadmap
+
+- [ ] **Mobile Application:** React Native port for native iOS and Android experiences.
+- [ ] **Wearable Integration:** Real-time stress tracking via biometric data (Fitbit/Apple Watch).
+- [ ] **Multi-Lingual Support:** Expanding AI support to regional Indian languages.
+- [ ] **Blockchain Credentials:** Secure, immutable storage for clinical session logs.
+
+---
+
+<div align="center">
+  <p>Developed with ❤️ for Student Mental Wellbeing</p>
+</div>
