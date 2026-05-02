@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Logo } from '../components/Common/Logo';
-import { GoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import gsap from 'gsap';
 
@@ -89,8 +89,6 @@ const LoginButton = ({
 
 export function Login() {
   const location = useLocation();
-  const processedGoogleHashRef = useRef(false);
-  const googleFlowRef = useRef<'popup' | 'redirect' | 'redirect-return'>('popup');
   const [view, setView] = useState<'login' | 'register' | 'otp' | 'forgot-password' | 'reset-password'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -111,125 +109,18 @@ export function Login() {
 
   const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
-  const authDebugEnabled = useMemo(() => {
-    if (import.meta.env.DEV) return true;
-    const params = new URLSearchParams(window.location.search);
-    return params.get('authDebug') === '1';
-  }, []);
-
-  const debugAuth = (stage: string, details?: Record<string, unknown>) => {
-    if (!authDebugEnabled) return;
-    console.info('[MindCare Auth Debug]', {
-      stage,
-      flow: googleFlowRef.current,
-      ...details,
-      timestamp: new Date().toISOString(),
-    });
-  };
-
-  const buildRandomToken = () => {
-    const bytes = new Uint8Array(16);
-    window.crypto.getRandomValues(bytes);
-    return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
-  };
-
-  const startGoogleRedirectAuth = () => {
-    googleFlowRef.current = 'redirect';
-
-    if (!googleClientId) {
-      debugAuth('redirect-init-missing-client-id');
-      toast.error('Google client ID is missing. Please contact support.');
-      return;
-    }
-
-    const state = buildRandomToken();
-    const nonce = buildRandomToken();
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || `${window.location.origin}/auth/google/callback`;
-
-    sessionStorage.setItem('mindcare_google_state', state);
-    sessionStorage.setItem('mindcare_google_nonce', nonce);
-
-    const params = new URLSearchParams({
-      client_id: googleClientId,
-      redirect_uri: redirectUri,
-      response_type: 'id_token',
-      scope: 'openid email profile',
-      state,
-      nonce,
-      prompt: 'select_account',
-    });
-
-    debugAuth('redirect-init', {
-      redirectUri,
-      origin: window.location.origin,
-    });
-
-    window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
-  };
-
-  const handleGoogleSuccess = async (response: any) => {
-    try {
-      debugAuth('google-success-received', {
-        hasCredential: !!response?.credential,
-      });
-      await googleLogin(response.credential);
-      debugAuth('google-login-complete');
-      toast.success('Welcome back!');
-      navigate('/student');
-    } catch (error: any) {
-      debugAuth('google-login-failed', {
-        message: error?.message || 'Unknown error',
-      });
-      toast.error(error.message || 'Google login failed');
-    }
-  };
-
-  const handleGooglePopupError = () => {
-    debugAuth('popup-error-fallback-to-redirect');
-    toast.error('Popup blocked or unavailable. Switching to redirect sign-in...');
-    startGoogleRedirectAuth();
-  };
-
-  useEffect(() => {
-    if (processedGoogleHashRef.current) return;
-
-    const hash = window.location.hash.startsWith('#') ? window.location.hash.slice(1) : '';
-    if (!hash) return;
-
-    const params = new URLSearchParams(hash);
-    const idToken = params.get('id_token');
-    const state = params.get('state');
-    const error = params.get('error');
-
-    if (!idToken && !error) return;
-    processedGoogleHashRef.current = true;
-
-    const expectedState = sessionStorage.getItem('mindcare_google_state');
-    sessionStorage.removeItem('mindcare_google_state');
-    sessionStorage.removeItem('mindcare_google_nonce');
-
-    window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-
-    if (error) {
-      debugAuth('redirect-return-error', { error });
-      toast.error('Google sign-in was cancelled or failed.');
-      return;
-    }
-
-    if (!idToken || !state || !expectedState || state !== expectedState) {
-      debugAuth('redirect-return-state-mismatch', {
-        hasIdToken: !!idToken,
-        hasState: !!state,
-        hasExpectedState: !!expectedState,
-      });
-      toast.error('Google sign-in validation failed. Please try again.');
-      return;
-    }
-
-    googleFlowRef.current = 'redirect-return';
-    debugAuth('redirect-return-validated');
-    handleGoogleSuccess({ credential: idToken });
-  }, []);
+  const loginWithGoogle = useGoogleLogin({
+    onSuccess: async (response) => {
+      try {
+        await googleLogin(response.access_token, true);
+        toast.success('Welcome back!');
+        navigate('/student');
+      } catch (error: any) {
+        toast.error(error.message || 'Google login failed');
+      }
+    },
+    onError: () => toast.error('Google login popup was closed or failed.'),
+  });
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -395,27 +286,18 @@ export function Login() {
                   <span className="flex-shrink mx-4 text-slate-500 text-xs font-bold tracking-widest uppercase">Or continue with</span>
                   <div className="flex-grow border-t border-white/5"></div>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center w-full">
                   {googleClientId && (
-                    <GoogleLogin 
-                      onSuccess={handleGoogleSuccess} 
-                      onError={handleGooglePopupError}
-                      theme="dark" 
-                      shape="pill" 
-                      use_fedcm_for_prompt={true}
-                    />
+                    <button 
+                      type="button" 
+                      onClick={() => loginWithGoogle()} 
+                      className="flex items-center justify-center space-x-2 bg-white text-gray-800 font-bold py-3 px-6 rounded-full shadow-md hover:bg-gray-100 transition duration-300 w-full"
+                    >
+                      <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                      <span>Continue with Google</span>
+                    </button>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={startGoogleRedirectAuth}
-                  className="w-full text-center text-xs font-medium text-slate-400 hover:text-[#00F5D4] transition-colors"
-                >
-                  Trouble with popup? Continue with Google redirect
-                </button>
-                {authDebugEnabled && (
-                  <p className="text-center text-[11px] text-amber-400/80">Auth debug enabled (popup/redirect events in console)</p>
-                )}
                 <p className="text-center text-sm text-slate-400">
                   Don't have an account? <button type="button" onClick={() => setView('register')} className="text-[#00F5D4] font-bold">Create one</button>
                 </p>
@@ -481,24 +363,18 @@ export function Login() {
                   <span className="flex-shrink mx-4 text-slate-500 text-xs font-bold tracking-widest uppercase">Or continue with</span>
                   <div className="flex-grow border-t border-white/5"></div>
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-center w-full">
                   {googleClientId && (
-                    <GoogleLogin 
-                      onSuccess={handleGoogleSuccess} 
-                      onError={handleGooglePopupError}
-                      theme="dark" 
-                      shape="pill" 
-                      use_fedcm_for_prompt={true}
-                    />
+                    <button 
+                      type="button" 
+                      onClick={() => loginWithGoogle()} 
+                      className="flex items-center justify-center space-x-2 bg-white text-gray-800 font-bold py-3 px-6 rounded-full shadow-md hover:bg-gray-100 transition duration-300 w-full"
+                    >
+                      <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                      <span>Continue with Google</span>
+                    </button>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={startGoogleRedirectAuth}
-                  className="w-full text-center text-xs font-medium text-slate-400 hover:text-[#00F5D4] transition-colors"
-                >
-                  Trouble with popup? Continue with Google redirect
-                </button>
                 <p className="text-center text-sm text-slate-400">
                   Already have an account? <button type="button" onClick={() => setView('login')} className="text-[#00F5D4] font-bold">Sign in</button>
                 </p>

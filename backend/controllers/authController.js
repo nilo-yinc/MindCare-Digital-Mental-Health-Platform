@@ -184,15 +184,26 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const axios = require('axios'); // Ensure axios is imported at the top if it isn't already, wait I'll just require it here to be safe
 const googleLogin = async (req, res) => {
   try {
-    const { token } = req.body;
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-    const payload = ticket.getPayload();
-    const { email, name, sub, picture } = payload;
+    const { token, isAccessToken } = req.body;
+    let email, name, sub, picture;
+
+    if (isAccessToken) {
+      const axios = require('axios');
+      const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      ({ email, name, picture, sub } = response.data);
+    } else {
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      ({ email, name, sub, picture } = payload);
+    }
     let user = await User.findOne({ email });
     if (!user) {
       user = await User.create({

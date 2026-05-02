@@ -17,7 +17,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<User | { requiresVerification: boolean; email: string }>;
   register: (name: string, email: string, password: string, role?: User['role']) => Promise<User>;
   verifyOTP: (email: string, otp: string) => Promise<User>;
-  googleLogin: (credential: string) => Promise<User>;
+  googleLogin: (credential: string, isAccessToken?: boolean) => Promise<User>;
   forgotPassword: (email: string) => Promise<{ message: string }>;
   resetPassword: (email: string, otp: string, newPassword: string) => Promise<{ message: string }>;
   updateProfile: (payload: { name?: string; avatar?: string; professional?: any; personal?: any }) => Promise<User>;
@@ -115,12 +115,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const googleLogin = async (credential: string) => {
+  const googleLogin = async (credential: string, isAccessToken: boolean = false) => {
     setIsLoading(true);
     try {
       const data = await apiRequest<{ _id: string; name: string; email: string; role: User['role']; avatar?: string; isVerified?: boolean; token: string }>('/api/auth/google', {
         method: 'POST',
-        body: JSON.stringify({ token: credential }),
+        body: JSON.stringify({ token: credential, isAccessToken }),
       });
 
       return persistSession(data);
